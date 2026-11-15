@@ -49,11 +49,32 @@ def whisper_local(file_path: str, model: str = "small", model_dir: str = "") -> 
     return " ".join(s.text.strip() for s in segments).strip()
 
 
+def transcribe_one(cfg, name: str, spec: dict, file_path: str) -> str:
+    """One provider, one file - the call the chain makes for each entry."""
+    spec = {**spec, "provider": spec.get("provider") or name}
+    return _run(cfg, spec, file_path)
+
+
 def transcribe_file(cfg, file_path: str) -> str:
-    spec = cfg.provider_spec()
-    if spec.get("provider") == "none":
+    """Chain first (N providers in order), then the flat single-provider fields."""
+    from cuff import chain as CH
+    section = cfg.transcription
+    if section.get("chain"):
+        result, via, errors = CH.resolve(
+            section, lambda name, spec: transcribe_one(cfg, name, spec, file_path))
+        if result is not None:
+            return result
+        if errors and via != "none":
+            raise RuntimeError("; ".join(errors))
         return ""
-    if spec.get("provider") == "whisper-local" or not spec.get("base_url"):
+    spec = cfg.provider_spec()
+    return _run(cfg, spec, file_path)
+
+
+def _run(cfg, spec: dict, file_path: str) -> str:
+    if spec.get("provider") == "none" or spec.get("kind") == "none":
+        return ""
+    if spec.get("kind") == "local" or spec.get("provider") == "whisper-local" or not spec.get("base_url"):
         local = cfg.transcription.get("local", {})
         return whisper_local(file_path, spec.get("model") or "small", local.get("model_dir", ""))
 

@@ -74,6 +74,7 @@ def payload(capture: dict) -> bytes:
         "id": capture["id"],
         "ts": capture["ts"],
         "text": capture.get("text", ""),
+        "message": capture.get("text", ""),   # agents template {message} as often as {text}
         "route": capture.get("route", ""),
         "media": capture.get("audio_path", ""),
     }

@@ -70,6 +70,7 @@ def cmd_status(args) -> int:
     known = [n for n in cfg.adapters] if False else []
     data = {
         "listening": f"http://{cfg.server['host']}:{cfg.server['port']}/upload",
+        "daemon_pid": daemon.running(),
         "transcription": cfg.transcription.get("provider", "none"),
         "language": cfg.transcription.get("language", "auto"),
         "destinations": list(known),
@@ -82,7 +83,18 @@ def cmd_status(args) -> int:
 
 def cmd_serve(args) -> int:
     from wc import daemon
+    if args.detach:
+        pid = daemon.start_detached()
+        out({"detached": True, "pid": pid, "log": str(daemon.HOME / "wc.log")}, args.json)
+        return 0
     daemon.serve()
+    return 0
+
+
+def cmd_stop(args) -> int:
+    from wc import daemon
+    stopped = daemon.stop_running()
+    out({"stopped": stopped}, args.json)
     return 0
 
 
@@ -112,7 +124,14 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(func=cmd_setup)
 
     p = sub.add_parser("serve", help="run the daemon")
+    p.add_argument("--detach", action="store_true",
+                   help="keep running after this shell/session exits")
+    p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_serve)
+
+    p = sub.add_parser("stop", help="stop a detached daemon")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_stop)
 
     p = sub.add_parser("status", help="is it up, what is configured")
     p.add_argument("--json", action="store_true")

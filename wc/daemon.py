@@ -174,6 +174,70 @@ def worker(cfg_path: Path, stop: threading.Event) -> None:
 
 
 # ---- lifecycle -------------------------------------------------------------
+def pid_file() -> Path:
+    return HOME / "wc.pid"
+
+
+def running() -> int | None:
+    """The daemon's pid if it is alive, else None (stale files are cleaned)."""
+    path = pid_file()
+    if not path.exists():
+        return None
+    try:
+        pid = int(path.read_text().strip())
+        os.kill(pid, 0)
+        return pid
+    except (ValueError, ProcessLookupError, PermissionError):
+        path.unlink(missing_ok=True)
+        return None
+
+
+def stop_running() -> bool:
+    pid = running()
+    if pid is None:
+        return False
+    os.kill(pid, 15)
+    for _ in range(50):
+        if running() is None:
+            return True
+        time.sleep(0.1)
+    os.kill(pid, 9)
+    return True
+
+
+def start_detached(cfg_path: Path = C.CONFIG_PATH) -> int:
+    """Double-fork so an agent's shell can exit (or its session close) and the
+    daemon keeps running. logs to ~/.wrist/wc.log, pid in ~/.wrist/wc.pid."""
+    existing = running()
+    if existing is not None:
+        return existing
+    HOME.mkdir(parents=True, exist_ok=True)
+    log = open(HOME / "wc.log", "ab")
+    first = os.fork()
+    if first > 0:
+        os.waitpid(first, 0)
+        for _ in range(50):
+            pid = running()
+            if pid is not None:
+                return pid
+            time.sleep(0.1)
+        return 0
+    os.setsid()
+    second = os.fork()
+    if second > 0:
+        os._exit(0)
+    devnull = os.open(os.devnull, os.O_RDONLY)
+    os.dup2(devnull, 0)
+    os.dup2(log.fileno(), 1)
+    os.dup2(log.fileno(), 2)
+    pid_file().write_text(str(os.getpid()))
+    try:
+        serve(cfg_path)
+    finally:
+        pid_file().unlink(missing_ok=True)
+    os._exit(0)
+
+
 def serve(cfg_path: Path = C.CONFIG_PATH) -> None:
     cfg = C.load(cfg_path)
     key = api_key()

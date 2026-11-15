@@ -123,10 +123,17 @@ def llm_label(spec: dict, labels: list[str], about: str, text: str) -> str:
 
 
 def route(cfg, text: str) -> tuple[str, str]:
-    """(dest, route name); ('', '') when nothing routes."""
+    """(dest, route name); ('', '') when nothing routes.
+
+    With no routes at all, everything goes to the first destination so a
+    capture is never silently stranded - that is the "no classifier yet"
+    case, and it is what makes the pipeline testable end to end.
+    """
     routes = getattr(cfg, "routes", [])
     if not routes:
-        return "", ""
+        destinations = getattr(cfg, "destinations", {})
+        first = next(iter(destinations), "")
+        return (first, "default") if first else ("", "")
     by_name = {r.get("name", ""): r for r in routes if r.get("name")}
     spec = getattr(cfg, "routing", {})
     kind = spec.get("type", "naive")

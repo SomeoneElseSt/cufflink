@@ -21,12 +21,31 @@ from typing import Any, Callable
 
 
 def resolve(section: dict, call: Callable[[str, dict], Any]) -> tuple[Any, str, list[str]]:
-    """(result, provider name that answered, errors from the ones that did not)."""
+    """(result, provider name that answered, errors from the ones that did not).
+
+    The declaration is the order - inline entries carry a `name`:
+
+        chain = [
+          { name = "mac-local", base_url = "http://192.168.1.20:8000/v1" },
+          { name = "deepgram", base_url = "https://api.deepgram.com/v1", api_key_env = "DEEPGRAM_API_KEY" },
+          { name = "none" },
+        ]
+
+    Read top to bottom: tried in that order. A plain string entry
+    (`chain = ["mac-local", "deepgram"]`) still works when the full spec lives
+    in [transcription.providers.<name>].
+    """
     errors: list[str] = []
-    for name in section.get("chain") or []:
+    providers = section.get("providers") or {}
+    for entry in section.get("chain") or []:
+        if isinstance(entry, dict):
+            name = entry.get("name", "")
+            spec = {k: v for k, v in entry.items() if k != "name"}
+            spec = {**providers.get(name, {}), **spec}
+        else:
+            name, spec = entry, providers.get(entry, {})
         if name == "none":
             return None, "none", errors
-        spec = (section.get("providers") or {}).get(name, {})
         try:
             return call(name, spec), name, errors
         except Exception as exc:                       # any provider failure -> next

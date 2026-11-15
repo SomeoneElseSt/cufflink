@@ -12,8 +12,8 @@ from pathlib import Path
 CAPTURE = Path.home() / ".wrist" / "capture"
 
 SHORTCUT_NAME = "watchlink"
-# Shortcuts colours are ARGB ints; ink teal, matching the CLI's calm look.
-ICON_COLOR_TEAL = 0xFF0F766E
+# Shortcuts colours are ARGB ints; neutral slate grey, calm and unbranded.
+ICON_COLOR_GREY = 0xFF6B7280
 # Glyph "mic.fill" from the SF Symbols set Shortcuts exposes.
 ICON_GLYPH_MIC = 59498
 
@@ -63,7 +63,7 @@ def build(endpoint: str, key: str) -> Path:
     ]
     plist = {"WFWorkflowActions": actions, "WFWorkflowClientVersion": "900",
              "WFWorkflowMinimumClientVersion": 900, "WFWorkflowIcon":
-             {"WFWorkflowIconStartColor": ICON_COLOR_TEAL, "WFWorkflowIconGlyphNumber": ICON_GLYPH_MIC},
+             {"WFWorkflowIconStartColor": ICON_COLOR_GREY, "WFWorkflowIconGlyphNumber": ICON_GLYPH_MIC},
              "WFWorkflowInputContentItemClasses": [], "WFWorkflowName": SHORTCUT_NAME,
              "WFWorkflowHasOutputFallback": False,
              "WFWorkflowOutputContentItemClasses": [], "WFWorkflowTypes": ["Watch"]}

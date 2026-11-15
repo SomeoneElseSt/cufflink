@@ -30,7 +30,7 @@ def build(endpoint: str, key: str) -> Path:
     import plistlib
 
     CAPTURE.mkdir(parents=True, exist_ok=True)
-    unsigned = CAPTURE / f"{SHORTCUT_NAME}.shortcut"
+    unsigned = CAPTURE / f"{SHORTCUT_NAME}.unsigned.shortcut"
     actions = [
         {"WFWorkflowActionIdentifier": "is.workflow.actions.recordaudio",
          "WFWorkflowActionParameters": {
@@ -75,7 +75,9 @@ def build(endpoint: str, key: str) -> Path:
 def sign_and_import(unsigned: Path) -> Path:
     # The name comes from WFWorkflowName inside the file, so the filename is
     # free to differ: import always lands as "cufflink", never "...-signed".
-    signed = unsigned.with_name(f"{SHORTCUT_NAME}-signed.shortcut")
+    # Import only accepts signed files, and the library name comes from
+    # WFWorkflowName inside the file - so the signed copy keeps the plain name.
+    signed = unsigned.with_name(f"{SHORTCUT_NAME}.shortcut")
     subprocess.run(["shortcuts", "sign", "--mode", "anyone",
                     "--input", str(unsigned), "--output", str(signed)], check=True)
     subprocess.run(["open", str(signed)])

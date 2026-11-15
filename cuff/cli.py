@@ -61,7 +61,7 @@ def cmd_status(args) -> int:
     if qdir.exists():
         queue = len(list(qdir.glob("*.json")))
     rows = []
-    if daemon.INDEX.exists():
+    if daemon.INDEX().exists():
         conn = daemon.db()
         rows = conn.execute(
             "select status, count(*) from recording group by status").fetchall()

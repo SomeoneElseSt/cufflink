@@ -112,7 +112,7 @@ def make_handler(key: str):
 
 # ---- the loop: transcribe -> route -> deliver ------------------------------
 def transcribe(cfg: C.Config, path: str) -> str:
-    from wc.transcribe import transcribe_file   # kept out of the hot import path
+    from cuff.transcribe import transcribe_file   # kept out of the hot import path
     return transcribe_file(cfg, path)
 
 

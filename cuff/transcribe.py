@@ -50,7 +50,7 @@ def whisper_local(file_path: str, model: str = "small", model_dir: str = "") -> 
 
 
 def transcribe_file(cfg, file_path: str) -> str:
-    spec = cfg.provider_spec
+    spec = cfg.provider_spec()
     if spec.get("provider") == "none":
         return ""
     if spec.get("provider") == "whisper-local" or not spec.get("base_url"):

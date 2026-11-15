@@ -209,7 +209,7 @@ def next_question(cfg: Config) -> dict | None:
 
 
 def as_json(cfg: Config) -> dict:
-    spec = cfg.provider_spec
+    spec = cfg.provider_spec()
     if spec.get("api_key"):
         spec["api_key"] = "<set>"   # never print the secret
     return {"server": cfg.server, "transcription": spec, "adapters": cfg.adapters}

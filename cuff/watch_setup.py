@@ -41,7 +41,20 @@ def build(endpoint: str, key: str) -> Path:
          "WFWorkflowActionParameters": {
              "UUID": "22222222-2222-2222-2222-222222222222",
              "WFURL": endpoint, "WFHTTPMethod": "POST", "ShowHeaders": 1,
-             "WFHTTPHeaders": {"X-API-Key": key, "Content-Type": "audio/mp4"},
+             "WFHTTPHeaders": {
+                # What Shortcuts itself writes, and what its editor renders: a
+                # WFDictionaryFieldValue whose items are text tokens. A plain
+                # dict is sent but never shown in the header dropdown.
+                "WFSerializationType": "WFDictionaryFieldValue",
+                "Value": {
+                    "WFDictionaryFieldValueItems": [
+                        {"WFItemType": 0,
+                         "WFKey": {"WFSerializationType": "WFTextTokenString",
+                                   "Value": {"string": header_key, "attachmentsByRange": {}}},
+                         "WFValue": {"WFSerializationType": "WFTextTokenString",
+                                     "Value": {"string": header_value, "attachmentsByRange": {}}}}
+                        for header_key, header_value in (
+                            ("X-API-Key", key), ("Content-Type", "audio/mp4"))]}},
              "WFHTTPBodyType": "File",
              "WFRequestVariable": {"WFSerializationType": "WFTextTokenAttachment",
                                    "Value": {"Type": "ActionOutput",
@@ -52,6 +65,7 @@ def build(endpoint: str, key: str) -> Path:
              "WFWorkflowMinimumClientVersion": 900, "WFWorkflowIcon":
              {"WFWorkflowIconStartColor": ICON_COLOR_TEAL, "WFWorkflowIconGlyphNumber": ICON_GLYPH_MIC},
              "WFWorkflowInputContentItemClasses": [], "WFWorkflowName": SHORTCUT_NAME,
+             "WFWorkflowHasOutputFallback": False,
              "WFWorkflowOutputContentItemClasses": [], "WFWorkflowTypes": ["Watch"]}
     with open(unsigned, "wb") as fh:
         plistlib.dump(plist, fh)
@@ -59,6 +73,8 @@ def build(endpoint: str, key: str) -> Path:
 
 
 def sign_and_import(unsigned: Path) -> Path:
+    # The name comes from WFWorkflowName inside the file, so the filename is
+    # free to differ: import always lands as "cufflink", never "...-signed".
     signed = unsigned.with_name(f"{SHORTCUT_NAME}-signed.shortcut")
     subprocess.run(["shortcuts", "sign", "--mode", "anyone",
                     "--input", str(unsigned), "--output", str(signed)], check=True)

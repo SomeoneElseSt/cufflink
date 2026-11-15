@@ -85,7 +85,7 @@ def cmd_serve(args) -> int:
     from cuff import daemon
     if args.detach:
         pid = daemon.start_detached()
-        out({"detached": True, "pid": pid, "log": str(daemon.HOME / "wc.log")}, args.json)
+        out({"detached": True, "pid": pid, "log": str(daemon.HOME() / "cuff.log")}, args.json)
         return 0
     daemon.serve()
     return 0

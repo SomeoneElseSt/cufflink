@@ -172,7 +172,7 @@ def worker(cfg_path: Path, stop: threading.Event) -> None:
 
 # ---- lifecycle -------------------------------------------------------------
 def pid_file() -> Path:
-    return HOME / "wc.pid"
+    return HOME() / "cuff.pid"
 
 
 def running() -> int | None:
@@ -204,12 +204,12 @@ def stop_running() -> bool:
 
 def start_detached(cfg_path: Path | None = None) -> int:
     """Double-fork so an agent's shell can exit (or its session close) and the
-    daemon keeps running. logs to ~/.wrist/wc.log, pid in ~/.wrist/wc.pid."""
+    daemon keeps running. logs to ~/.wrist/cuff.log, pid in ~/.wrist/cuff.pid."""
     existing = running()
     if existing is not None:
         return existing
     HOME().mkdir(parents=True, exist_ok=True)
-    log = open(HOME / "wc.log", "ab")
+    log = open(HOME() / "cuff.log", "ab")
     first = os.fork()
     if first > 0:
         os.waitpid(first, 0)

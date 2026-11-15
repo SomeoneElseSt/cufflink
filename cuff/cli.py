@@ -26,8 +26,8 @@ def out(data: dict, as_json: bool) -> None:
 
 
 def cmd_setup(args) -> int:
-    C.HOME_DIR.mkdir(parents=True, exist_ok=True)
-    path = C.CONFIG_PATH
+    C.home_dir().mkdir(parents=True, exist_ok=True)
+    path = C.config_path()
     cfg = C.load(path)
     for pair in args.set or []:
         key, _, value = pair.partition("=")
@@ -36,7 +36,7 @@ def cmd_setup(args) -> int:
     from cuff import daemon
     key = daemon.api_key()
     pending = C.next_question(cfg)
-    out({"config": str(path), "ingest_key_file": str(C.HOME_DIR / "key"),
+    out({"config": str(path), "ingest_key_file": str(C.home_dir() / "key"),
          "ingest_url": f"http://{cfg.server['host']}:{cfg.server['port']}/upload",
          "next_question": pending["ask"] if pending else None}, args.json)
     return 0
@@ -57,7 +57,7 @@ def cmd_status(args) -> int:
     from cuff import daemon
     cfg = C.load()
     queue = 0
-    qdir = C.HOME_DIR / "queue"
+    qdir = C.home_dir() / "queue"
     if qdir.exists():
         queue = len(list(qdir.glob("*.json")))
     rows = []

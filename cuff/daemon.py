@@ -21,11 +21,13 @@ from urllib import request as urlrequest
 from cuff import config as C
 from cuff import destinations as D
 
-HOME = C.HOME_DIR
-RECORDINGS = HOME / "recordings"
-TRANSCRIPTS = RECORDINGS / "transcriptions"
-INDEX = HOME / "index.db"
-KEY_FILE = HOME / "key"
+def HOME() -> Path:  # noqa: N802 - follows CUFF_HOME at call time
+    return C.home_dir()
+
+
+def KEY_FILE() -> Path: return HOME() / "key"
+def INDEX() -> Path: return HOME() / "index.db"
+def RECORDINGS() -> Path: return HOME() / "recordings"
 POLL_SECONDS = 1.0
 MAX_BYTES = 200 * 1024 * 1024
 
@@ -39,24 +41,24 @@ create table if not exists recording (
 
 # ---- storage ---------------------------------------------------------------
 def db() -> sqlite3.Connection:
-    HOME.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(INDEX, timeout=10)
+    HOME().mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(INDEX(), timeout=10)
     conn.execute(SCHEMA)
     return conn
 
 
 def api_key() -> str:
-    if not KEY_FILE.exists():
-        KEY_FILE.write_text(secrets.token_urlsafe(32))
-        KEY_FILE.chmod(0o600)
-    return KEY_FILE.read_text().strip()
+    if not KEY_FILE().exists():
+        KEY_FILE().write_text(secrets.token_urlsafe(32))
+        KEY_FILE().chmod(0o600)
+    return KEY_FILE().read_text().strip()
 
 
 def save_recording(body: bytes, name: str) -> dict:
-    RECORDINGS.mkdir(parents=True, exist_ok=True)
+    RECORDINGS().mkdir(parents=True, exist_ok=True)
     stamp = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     rid = f"{time.strftime('%Y%m%dT%H%M%S')}-{secrets.token_hex(3)}"
-    path = RECORDINGS / f"{rid}-{name}.m4a"
+    path = RECORDINGS() / f"{rid}-{name}.m4a"
     path.write_bytes(body)
     path.chmod(0o600)
     conn = db()
@@ -200,13 +202,13 @@ def stop_running() -> bool:
     return True
 
 
-def start_detached(cfg_path: Path = C.CONFIG_PATH) -> int:
+def start_detached(cfg_path: Path | None = None) -> int:
     """Double-fork so an agent's shell can exit (or its session close) and the
     daemon keeps running. logs to ~/.wrist/wc.log, pid in ~/.wrist/wc.pid."""
     existing = running()
     if existing is not None:
         return existing
-    HOME.mkdir(parents=True, exist_ok=True)
+    HOME().mkdir(parents=True, exist_ok=True)
     log = open(HOME / "wc.log", "ab")
     first = os.fork()
     if first > 0:
@@ -233,7 +235,7 @@ def start_detached(cfg_path: Path = C.CONFIG_PATH) -> int:
     os._exit(0)
 
 
-def serve(cfg_path: Path = C.CONFIG_PATH) -> None:
+def serve(cfg_path: Path | None = None) -> None:
     cfg = C.load(cfg_path)
     key = api_key()
     stop = threading.Event()

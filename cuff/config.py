@@ -17,8 +17,13 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-HOME_DIR = Path(os.environ.get("CUFF_HOME", Path.home() / ".wrist"))
-CONFIG_PATH = HOME_DIR / "config.toml"
+def home_dir() -> Path:
+    """Read CUFF_HOME at call time - tests and `cuff --home` must not need a re-import."""
+    return Path(os.environ.get("CUFF_HOME", Path.home() / ".wrist"))
+
+
+def config_path() -> Path:
+    return home_dir() / "config.toml"
 
 # Deviations from the audio-transcriptions shape, declared as data.
 ADAPTERS = {
@@ -98,7 +103,8 @@ def parse(text: str) -> Config:
     return cfg
 
 
-def load(path: Path = CONFIG_PATH) -> Config:
+def load(path: Path | None = None) -> Config:
+    path = path or config_path()
     if not path.exists():
         return Config()
     return parse(path.read_text())
@@ -145,7 +151,8 @@ def to_toml(cfg: Config) -> str:
     return "\n".join(lines).strip() + "\n"
 
 
-def save(cfg: Config, path: Path = CONFIG_PATH) -> None:
+def save(cfg: Config, path: Path | None = None) -> None:
+    path = path or config_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(to_toml(cfg))
     path.chmod(0o600)

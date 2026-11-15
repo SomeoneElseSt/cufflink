@@ -4,13 +4,17 @@ One tap on your Apple Watch, and the audio is on your own machine. From there
 you can transcribe it, read it over MCP, or route it to an agent.
 
 ```
-watch ──tap──▶ your Mac (or a VM) ──▶ ~/.wrist/recordings/*.m4a + index.db
-                                        │
-                    ┌───────────────────┼────────────────────┐
-                    ▼                   ▼                    ▼
-              transcribe            read over MCP       route to an agent
-         locally or any service   list_captures / get   webhook (Hermes,
-         (OpenAI-compatible)      resources/read        OpenClaw), or nothing
+watch ──tap──▶ Mac or VM ──▶ ~/.wrist/recordings/*.m4a + index.db
+                                                              │
+        ┌─────────────────────────────┬───────────────────────┴──────────────┐
+        ▼                             ▼                                      ▼
+  transcribe                    read over MCP                        route to an agent
+  local whisper, or any         list_captures, get_capture,          webhook: Hermes,
+  OpenAI-compatible service     resources/read recordings://latest   OpenClaw, anything
+  (a chain: first success)      (any MCP client, local or remote)    that takes a POST
+        │                             │                                      │
+        └────────────── each is optional and independent ────────────────────┘
+             do one, all three, or none: the files are always there
 ```
 
 ## What it gives you

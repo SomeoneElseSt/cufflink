@@ -1,5 +1,10 @@
 # watchlink
 
+> **watchlink** - tap your Watch, the audio lands on your machine.
+> Nothing is uploaded anywhere it doesn't belong: the files are yours,
+> and every step after that (transcribe, read over MCP, route to an agent)
+> is one you opt into.
+
 One tap on your Apple Watch, and the audio is on your own machine. From there
 you can transcribe it, read it over MCP, or route it to an agent.
 

@@ -1,6 +1,6 @@
 """MCP over HTTP with a shared token - the remote case (watchlink on a VM).
 
-    WATCHLINK_MCP_TOKEN=<token> python -m wangling_server --http --host 0.0.0.0 --port 8767
+    WATCHLINK_MCP_TOKEN=<token> python -m watchlink.mcp_http --http --host 0.0.0.0 --port 8767
 
 Every request must carry `Authorization: Bearer <token>`. The token lives in
 ~/.wrist/mcp_token (0600) when not given in the environment, created on first
@@ -30,7 +30,7 @@ def mcp_token() -> str:
 
 
 def serve_http(host: str = "127.0.0.1", port: int = 8767) -> None:
-    from wangling_server import handle
+    from watchlink.mcp_server import handle
 
     token = mcp_token()
 
@@ -86,5 +86,5 @@ if __name__ == "__main__":
     if "--http" in sys.argv:
         rest = [a for a in sys.argv[1:] if a != "--http"]
         sys.exit(main(rest))
-    from wangling_server import serve_stdio
+    from watchlink.mcp_server import serve_stdio
     serve_stdio()

@@ -15,6 +15,8 @@ Stdlib only: JSON-RPC over stdin/stdout or a tiny HTTP POST endpoint.
 """
 
 import json
+import os
+import subprocess
 import sys
 import time
 import urllib.request
@@ -51,35 +53,56 @@ def get_capture(rid: str) -> dict | None:
             "media": row[4], "status": row[5]}
 
 
-# Where agent feedback goes. A plain URL - no custom domain needed: a free
-# hosted endpoint (Cloudflare Worker, Vercel, Fly, a gist-backed function)
-# works, and anyone self-hosting can point it at their own collector.
-FEEDBACK_URL = "https://feedback.watchlink.dev/v1/notes"
-FEEDBACK_TOKEN = ""          # optional shared token; empty = open endpoint
+# Where agent feedback goes: GitHub issues on the project repo. There is no
+# anonymous write, so the token is the user's own (GITHUB_TOKEN, or the token
+# `gh auth token` prints) - never shipped with the package.
+FEEDBACK_REPO = "SomeoneElseSt/watchlink"
+FEEDBACK_API = f"https://api.github.com/repos/{FEEDBACK_REPO}/issues"
+
+
+def feedback_token() -> str:
+    given = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if given:
+        return given
+    try:  # the user already logged in with gh
+        done = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True, timeout=10)
+        return done.stdout.strip() if done.returncode == 0 else ""
+    except (OSError, subprocess.SubprocessError):
+        return ""
 
 
 def send_feedback(message: str, kind: str = "note", context: str = "") -> dict:
-    """POST a note to the project's feedback endpoint (opt-in, never automatic).
+    """Open a GitHub issue on the project repo (opt-in, never automatic).
 
-    Falls back to a local file when the endpoint is unreachable, so a note is
-    never lost - an agent can tell the user what happened.
+    Needs a token: GITHUB_TOKEN / GH_TOKEN, or a `gh` login. Without one the
+    note is kept locally so it is not lost, and the caller is told why.
     """
+    title = f"[{kind}] {message[:70]}"
+    body = f"{message}\n\n---\ncontext: {context}\nwhen: {time.strftime('%Y-%m-%dT%H:%M:%S%z')}\nsource: watchlink"
+    token = feedback_token()
     note = {"kind": kind, "message": message, "context": context,
             "ts": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "source": "watchlink"}
-    body = json.dumps(note).encode()
-    headers = {"Content-Type": "application/json"}
-    if FEEDBACK_TOKEN:
-        headers["Authorization"] = f"Bearer {FEEDBACK_TOKEN}"
-    req = urllib.request.Request(FEEDBACK_URL, data=body, method="POST", headers=headers)
+    if not token:
+        return {"sent": False, "error": "no GitHub token (set GITHUB_TOKEN or run gh auth login)",
+                "saved_to": _save_locally(note)}
+    payload = json.dumps({"title": title, "body": body}).encode()
+    req = urllib.request.Request(FEEDBACK_API, data=payload, method="POST", headers={
+        "Content-Type": "application/json", "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {token}", "User-Agent": "watchlink"})
     try:
-        with urllib.request.urlopen(req, timeout=10) as reply:
-            return {"sent": True, "status": getattr(reply, "status", 200)}
-    except Exception as exc:  # offline, DNS, 5xx - keep it locally instead
-        path = daemon.HOME() / "feedback.jsonl"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "a") as fh:
-            fh.write(json.dumps(note) + "\n")
-        return {"sent": False, "error": str(exc), "saved_to": str(path)}
+        with urllib.request.urlopen(req, timeout=15) as reply:
+            made = json.loads(reply.read())
+            return {"sent": True, "issue": made.get("html_url"), "number": made.get("number")}
+    except Exception as exc:  # offline, 401, rate limited - keep it locally
+        return {"sent": False, "error": str(exc), "saved_to": _save_locally(note)}
+
+
+def _save_locally(note: dict) -> str:
+    path = daemon.HOME() / "feedback.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a") as fh:
+        fh.write(json.dumps(note) + "\n")
+    return str(path)
 
 
 TOOLS = {

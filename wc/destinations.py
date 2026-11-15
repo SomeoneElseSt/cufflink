@@ -43,7 +43,9 @@ class Destination:
 def sign_standard_webhooks(secret: str, msg_id: str, timestamp: int, body: bytes) -> dict:
     """webhook-id / webhook-timestamp / webhook-signature over {id}.{ts}.{body}."""
     raw = secret.removeprefix("whsec_")
-    key = __import__("base64").b64decode(raw + "=" * (-len(raw) % 4))
+    # the secret is used as raw bytes: decoding it as base64 produced
+    # "Invalid signature" from the live Hermes gateway, raw bytes were accepted
+    key = raw.encode()
     signed = f"{msg_id}.{timestamp}.".encode() + body
     digest = hmac.new(key, signed, hashlib.sha256).digest()
     import base64

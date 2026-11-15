@@ -63,6 +63,14 @@ SETUP_QUESTIONS = [
     {"key": "server.address",
      "ask": "If a VM: what is its public address or hostname? (used to build the watch shortcut's URL)",
      "when": {"server.where": "vm"}},
+    {"key": "transcription.provider",
+     "ask": "Transcribe at all? none, or a local whisper model "
+            "(tiny ~0.2 GB RAM, base ~0.5 GB, small ~1.5 GB - small is what runs on "
+            "the 2-vCPU VM and is the accuracy sweet spot; base is the speed one), "
+            "or a service speaking the audio-transcriptions API",
+     "choices": {"local": ["whisper-tiny", "whisper-base", "whisper-small"],
+                 "service": ["any audio-transcriptions endpoint"],
+                 "none": ["keep the audio untranscribed"]}},
     {"key": "transcription.language", "ask": "Which language do you speak most? (default: auto)"},
     {"key": "transcription.provider",
      "ask": "How should recordings be transcribed? local whisper model, a service "

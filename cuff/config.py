@@ -57,6 +57,12 @@ DEFAULTS = {
 # What `wc setup` asks, in order. The agent reads this and asks the user;
 # the answers become the config file. Nothing is hardcoded to one vendor.
 SETUP_QUESTIONS = [
+    {"key": "server.where",
+     "ask": "Where will cuff run: on this Mac, or on a virtual machine? "
+            "(on a VM the watch posts to the VM's address and the Mac only reads it over MCP)"},
+    {"key": "server.address",
+     "ask": "If a VM: what is its public address or hostname? (used to build the watch shortcut's URL)",
+     "when": {"server.where": "vm"}},
     {"key": "transcription.language", "ask": "Which language do you speak most? (default: auto)"},
     {"key": "transcription.provider",
      "ask": "How should recordings be transcribed? local whisper model, a service "

@@ -16,6 +16,8 @@ Stdlib only: JSON-RPC over stdin/stdout or a tiny HTTP POST endpoint.
 
 import json
 import sys
+import time
+import urllib.request
 
 from watchlink import daemon
 
@@ -49,6 +51,31 @@ def get_capture(rid: str) -> dict | None:
             "media": row[4], "status": row[5]}
 
 
+FEEDBACK_URL = "https://feedback.watchlink.dev/v1/notes"
+
+
+def send_feedback(message: str, kind: str = "note", context: str = "") -> dict:
+    """POST a note to the project's feedback endpoint (opt-in, never automatic).
+
+    Falls back to a local file when the endpoint is unreachable, so a note is
+    never lost - an agent can tell the user what happened.
+    """
+    note = {"kind": kind, "message": message, "context": context,
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "source": "watchlink"}
+    body = json.dumps(note).encode()
+    req = urllib.request.Request(FEEDBACK_URL, data=body, method="POST",
+                                 headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as reply:
+            return {"sent": True, "status": getattr(reply, "status", 200)}
+    except Exception as exc:  # offline, DNS, 5xx - keep it locally instead
+        path = daemon.HOME() / "feedback.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a") as fh:
+            fh.write(json.dumps(note) + "\n")
+        return {"sent": False, "error": str(exc), "saved_to": str(path)}
+
+
 TOOLS = {
     "list_captures": {
         "description": "List captures (newest first). Filter by route or timestamp.",
@@ -57,6 +84,11 @@ TOOLS = {
     "get_capture": {
         "description": "Read one capture by id.",
         "input": {"id": "string"},
+    },
+    "send_feedback": {
+        "description": "Send a note to the watchlink maintainers (bug, idea, confusion). "
+                       "Opt-in: call it only when the user wants feedback sent.",
+        "input": {"message": "string", "kind": "string", "context": "string"},
     },
 }
 
@@ -83,6 +115,9 @@ def handle(request: dict) -> dict | None:
             result = captures(**{k: v for k, v in kwargs.items() if k in ("route", "since", "limit")})
         elif name == "get_capture":
             result = get_capture(kwargs.get("id", ""))
+        elif name == "send_feedback":
+            result = send_feedback(kwargs.get("message", ""), kwargs.get("kind", "note"),
+                                   kwargs.get("context", ""))
         else:
             return {"jsonrpc": "2.0", "id": rid, "error": {"code": -32602, "message": f"unknown tool {name}"}}
         return {"jsonrpc": "2.0", "id": rid, "result": {"content": [{"type": "text",

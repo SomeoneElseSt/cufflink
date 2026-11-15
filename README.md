@@ -19,9 +19,9 @@ use — Hermes, OpenClaw, Claude Code — as a message it can act on.
 ## Quick start
 
 ```
-wc setup --json      # asks a few questions, writes ~/.wrist/config.toml
-wc serve             # the daemon: POST /upload + watcher + router
-wc status --json
+wl setup --json      # asks a few questions, writes ~/.wrist/config.toml
+wl serve             # the daemon: POST /upload + watcher + router
+wl status --json
 ```
 
-Then set up the watch shortcut (`wc watch-setup`) and start talking.
+Then set up the watch shortcut (`wl watch-setup`) and start talking.

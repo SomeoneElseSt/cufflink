@@ -152,3 +152,8 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def wl_main(argv: list[str] | None = None) -> int:
+    """Short alias: `wl` is the same command as `watchlink`."""
+    return main(argv)

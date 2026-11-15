@@ -12,8 +12,8 @@ from pathlib import Path
 CAPTURE = Path.home() / ".wrist" / "capture"
 
 SHORTCUT_NAME = "watchlink"
-# Shortcuts colours are ARGB ints; neutral slate grey, calm and unbranded.
-ICON_COLOR_GREY = 0xFF6B7280
+# Shortcuts colours are ARGB ints; a true neutral grey (#A0A0A0, no hue).
+ICON_COLOR_GREY = 0xFFA0A0A0
 # Glyph "mic.fill" from the SF Symbols set Shortcuts exposes.
 ICON_GLYPH_MIC = 59498
 

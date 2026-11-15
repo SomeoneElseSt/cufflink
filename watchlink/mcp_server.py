@@ -51,7 +51,11 @@ def get_capture(rid: str) -> dict | None:
             "media": row[4], "status": row[5]}
 
 
+# Where agent feedback goes. A plain URL - no custom domain needed: a free
+# hosted endpoint (Cloudflare Worker, Vercel, Fly, a gist-backed function)
+# works, and anyone self-hosting can point it at their own collector.
 FEEDBACK_URL = "https://feedback.watchlink.dev/v1/notes"
+FEEDBACK_TOKEN = ""          # optional shared token; empty = open endpoint
 
 
 def send_feedback(message: str, kind: str = "note", context: str = "") -> dict:
@@ -63,8 +67,10 @@ def send_feedback(message: str, kind: str = "note", context: str = "") -> dict:
     note = {"kind": kind, "message": message, "context": context,
             "ts": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "source": "watchlink"}
     body = json.dumps(note).encode()
-    req = urllib.request.Request(FEEDBACK_URL, data=body, method="POST",
-                                 headers={"Content-Type": "application/json"})
+    headers = {"Content-Type": "application/json"}
+    if FEEDBACK_TOKEN:
+        headers["Authorization"] = f"Bearer {FEEDBACK_TOKEN}"
+    req = urllib.request.Request(FEEDBACK_URL, data=body, method="POST", headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=10) as reply:
             return {"sent": True, "status": getattr(reply, "status", 200)}

@@ -241,7 +241,7 @@ def serve(cfg_path: Path | None = None) -> None:
     stop = threading.Event()
     threading.Thread(target=worker, args=(cfg_path, stop), daemon=True).start()
     server = ThreadingHTTPServer((cfg.server["host"], int(cfg.server["port"])), make_handler(key))
-    print(f"wc serving on http://{cfg.server['host']}:{cfg.server['port']}/upload", flush=True)
+    print(f"watchlink serving on http://{cfg.server['host']}:{cfg.server['port']}/upload", flush=True)
     try:
         server.serve_forever()
     finally:

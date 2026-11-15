@@ -117,6 +117,18 @@ def load(path: Path | None = None) -> Config:
     return parse(path.read_text())
 
 
+# comments written into the generated file, keyed by "section.key" or "section"
+COMMENTS = {
+    "transcription.chain":
+        "# Try each provider in this order: 1st, 2nd, 3rd... The first that answers wins.\n"
+        "# \"none\" stops and keeps the audio untranscribed.",
+    "routing.type":
+        "# naive = keyword match (no model). classifier = a fast model picks one label\n"
+        "# from the route names (constrained to them). llm = it reasons first, then\n"
+        "# answers, and is retried when the label is invalid.",
+}
+
+
 def to_toml(cfg: Config) -> str:
     lines: list[str] = []
 
@@ -137,6 +149,9 @@ def to_toml(cfg: Config) -> str:
         for k, v in simple.items():
             if v == "" or v is None:
                 continue
+            comment = COMMENTS.get(f"{prefix}.{k}" if prefix else k)
+            if comment:
+                lines.append(comment)
             lines.append(f"{k} = {scalar(v)}")
         if prefix and simple:
             lines.append("")

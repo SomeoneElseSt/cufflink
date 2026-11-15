@@ -11,6 +11,12 @@ from pathlib import Path
 
 CAPTURE = Path.home() / ".wrist" / "capture"
 
+SHORTCUT_NAME = "cufflink"
+# Shortcuts colours are ARGB ints; ink teal, matching the CLI's calm look.
+ICON_COLOR_TEAL = 0xFF0F766E
+# Glyph "mic.fill" from the SF Symbols set Shortcuts exposes.
+ICON_GLYPH_MIC = 59498
+
 
 def say(message: str) -> None:
     """Onboarding: tell the human what is about to happen and that it is safe."""
@@ -24,7 +30,7 @@ def build(endpoint: str, key: str) -> Path:
     import plistlib
 
     CAPTURE.mkdir(parents=True, exist_ok=True)
-    unsigned = CAPTURE / "WristCapture.shortcut"
+    unsigned = CAPTURE / f"{SHORTCUT_NAME}.shortcut"
     actions = [
         {"WFWorkflowActionIdentifier": "is.workflow.actions.recordaudio",
          "WFWorkflowActionParameters": {
@@ -44,8 +50,8 @@ def build(endpoint: str, key: str) -> Path:
     ]
     plist = {"WFWorkflowActions": actions, "WFWorkflowClientVersion": "900",
              "WFWorkflowMinimumClientVersion": 900, "WFWorkflowIcon":
-             {"WFWorkflowIconStartColor": 4282601983, "WFWorkflowIconGlyphNumber": 59511},
-             "WFWorkflowInputContentItemClasses": [], "WFWorkflowName": "WristCapture",
+             {"WFWorkflowIconStartColor": ICON_COLOR_TEAL, "WFWorkflowIconGlyphNumber": ICON_GLYPH_MIC},
+             "WFWorkflowInputContentItemClasses": [], "WFWorkflowName": SHORTCUT_NAME,
              "WFWorkflowOutputContentItemClasses": [], "WFWorkflowTypes": ["Watch"]}
     with open(unsigned, "wb") as fh:
         plistlib.dump(plist, fh)
@@ -53,7 +59,7 @@ def build(endpoint: str, key: str) -> Path:
 
 
 def sign_and_import(unsigned: Path) -> Path:
-    signed = unsigned.with_name("WristCapture_signed.shortcut")
+    signed = unsigned.with_name(f"{SHORTCUT_NAME}.shortcut")
     subprocess.run(["shortcuts", "sign", "--mode", "anyone",
                     "--input", str(unsigned), "--output", str(signed)], check=True)
     subprocess.run(["open", str(signed)])
@@ -68,7 +74,7 @@ def main(endpoint: str, key: str) -> int:
         "it, then you'll see an import prompt - it's safe, it only records and "
         "sends to the address you configured.")
     signed = sign_and_import(build(endpoint, key))
-    say(f"Import {signed.name}, then enable it for Apple Watch in Shortcuts.")
+    say(f"Import {signed.name} (named {SHORTCUT_NAME}, teal mic icon), then enable it for Apple Watch in Shortcuts.")
     return 0
 
 

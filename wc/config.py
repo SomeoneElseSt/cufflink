@@ -69,6 +69,10 @@ class Config:
     server: dict = field(default_factory=lambda: dict(DEFAULTS["server"]))
     transcription: dict = field(default_factory=lambda: dict(DEFAULTS["transcription"]))
     adapters: dict = field(default_factory=lambda: {k: dict(v) for k, v in ADAPTERS.items()})
+    routing: dict = field(default_factory=lambda: {"type": "naive", "base_url": "",
+                                                   "api_key_env": "", "model": ""})
+    routes: list = field(default_factory=list)
+    destinations: dict = field(default_factory=dict)
 
     @property
     def provider_spec(self) -> dict:
@@ -85,6 +89,9 @@ def parse(text: str) -> Config:
     cfg = Config()
     cfg.server.update(data.get("server", {}))
     cfg.transcription.update(data.get("transcription", {}))
+    cfg.routing.update(data.get("routing", {}))
+    cfg.routes = data.get("routes", [])
+    cfg.destinations = data.get("destinations", {})
     overrides = data.get("transcription", {}).get("adapters", {})
     for name, spec in overrides.items():
         cfg.adapters.setdefault(name, {}).update(spec)
@@ -125,6 +132,14 @@ def to_toml(cfg: Config) -> str:
 
     table("server", cfg.server)
     table("transcription", cfg.transcription)
+    table("routing", cfg.routing)
+    for route in cfg.routes:
+        lines.append("[[routes]]")
+        for k, v in route.items():
+            lines.append(f"{k} = {scalar(v)}")
+        lines.append("")
+    for name, dest in cfg.destinations.items():
+        table(f"destinations.{name}", dest)
     for name, spec in cfg.adapters.items():
         table(f"transcription.adapters.{name}", spec)
     return "\n".join(lines).strip() + "\n"

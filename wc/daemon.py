@@ -115,15 +115,10 @@ def transcribe(cfg: C.Config, path: str) -> str:
 
 
 def route(cfg: C.Config, text: str) -> str:
-    """First matching rule wins; no rule -> empty (no destination)."""
-    for rule in cfg.routes:
-        match = rule.get("match", {})
-        words = match.get("any", [])
-        if words and any(w.lower() in text.lower() for w in words):
-            return rule.get("dest", "")
-        if match.get("always"):
-            return rule.get("dest", "")
-    return ""
+    """Route a transcript through the configured strategy (optional)."""
+    from wc import routing
+    routing.validate(cfg.routes, cfg.destinations)
+    return routing.route(cfg, text)[0]
 
 
 def deliver(cfg: C.Config, dest_name: str, capture: dict) -> dict:

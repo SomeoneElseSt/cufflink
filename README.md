@@ -1,4 +1,4 @@
-# cufflog
+# cufflink
 
 Talk into your wrist, get it done on your machine.
 

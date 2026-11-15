@@ -59,7 +59,9 @@ DEFAULTS = {
 SETUP_QUESTIONS = [
     {"key": "server.where",
      "ask": "Where will watchlink run: on this Mac, or on a virtual machine? "
-            "(on a VM the watch posts to the VM's address and the Mac only reads it over MCP)"},
+            "On this Mac, the watch can only upload while the Mac is awake - a "
+            "closed lid means the recording goes nowhere. On a VM it is always "
+            "reachable and the Mac just reads captures over MCP."},
     {"key": "server.address",
      "ask": "If a VM: what is its public address or hostname? (used to build the watch shortcut's URL)",
      "when": {"server.where": "vm"}},
@@ -72,9 +74,6 @@ SETUP_QUESTIONS = [
                  "service": ["any audio-transcriptions endpoint"],
                  "none": ["keep the audio untranscribed"]}},
     {"key": "transcription.language", "ask": "Which language do you speak most? (default: auto)"},
-    {"key": "transcription.provider",
-     "ask": "How should recordings be transcribed? local whisper model, a service "
-            "speaking the audio-transcriptions API, or none"},
     {"key": "transcription.base_url",
      "ask": "If a service: what is its base URL? (leave empty for a local server)",
      "when": {"transcription.provider": {"not_in": ["none", "whisper-local"]}}},

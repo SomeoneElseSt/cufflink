@@ -29,10 +29,12 @@ scheme = "bearer"
 token_env = "OPENCLAW_HOOKS_TOKEN"
 ```
 
-Strategies:
-- **naive** - first rule whose `match.any` words appear (case-insensitive). `match.always = true` is a catch-all.
-- **classifier** - the model picks one route `name` from the list; falls back to naive on failure.
-- **llm** - same call, but the model also reads each route's `about` text.
+Strategies, tried in this order (decision tree):
+1. **naive** - no model. First rule whose `match.any` words appear (case-insensitive); `match.always = true` is a catch-all.
+2. **classifier** - if naive found nothing and a model endpoint is configured: the model picks one route `name` from the enum, one pass (System 1).
+3. **llm** - same call but the model reads each route's `about`, reasons first, and is retried with the error when the label is invalid (System 2).
+
+The order is what routes: with overlapping rules the FIRST match wins, and the labels the model sees are listed in the same declared order.
 
 Failures:
 - A route with an unknown `dest` is a `ValueError` at load - a typo must be loud.

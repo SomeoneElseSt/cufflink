@@ -137,6 +137,10 @@ def route(cfg, text: str) -> tuple[str, str]:
     by_name = {r.get("name", ""): r for r in routes if r.get("name")}
     spec = getattr(cfg, "routing", {})
     kind = spec.get("type", "naive")
+    # decision tree, in order: naive first (free, no model), then the model.
+    first_try = naive(routes, text)
+    if first_try[0] and kind == "naive":
+        return first_try
     if kind in ("classifier", "llm") and by_name:
         labels = list(by_name) + ["none"]
         about = "; ".join(f"{name}: {r.get('about', name)}" for name, r in by_name.items())
@@ -149,4 +153,4 @@ def route(cfg, text: str) -> tuple[str, str]:
             return by_name[label].get("dest", ""), label
         if label == "none":
             return "", ""
-    return naive(routes, text)
+    return first_try

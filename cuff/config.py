@@ -46,8 +46,11 @@ DEFAULTS = {
         "base_url": "",
         "api_key_env": "",
         "response_format": "json",
-        "chain": [],          # ordered provider names; empty = use the flat fields above
-        "providers": {},      # name -> {base_url, model, api_key_env, ...}
+        "chain": ["base", "small"],   # tried in order; measured on a 2-vCPU VM
+        "providers": {
+            "base": {"kind": "local", "model": "base"},
+            "small": {"kind": "local", "model": "small"},
+        },
     },
 }
 

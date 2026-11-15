@@ -17,7 +17,7 @@ Stdlib only: JSON-RPC over stdin/stdout or a tiny HTTP POST endpoint.
 import json
 import sys
 
-from wc import daemon
+from cuff import daemon
 
 
 def captures(route: str = "", since: str = "", limit: int = 20) -> list[dict]:

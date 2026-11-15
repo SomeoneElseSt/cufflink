@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from urllib import request as urlrequest
 
-QUEUE_DIR = Path(os.environ.get("WC_HOME", Path.home() / ".wrist")) / "queue"
+QUEUE_DIR = Path(os.environ.get("CUFF_HOME", Path.home() / ".wrist")) / "queue"
 
 # auth scheme -> headers. Schemes are data: adding one is a dict entry.
 SCHEMES = {

@@ -17,7 +17,7 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-HOME_DIR = Path(os.environ.get("WC_HOME", Path.home() / ".wrist"))
+HOME_DIR = Path(os.environ.get("CUFF_HOME", Path.home() / ".wrist"))
 CONFIG_PATH = HOME_DIR / "config.toml"
 
 # Deviations from the audio-transcriptions shape, declared as data.

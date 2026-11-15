@@ -18,8 +18,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib import request as urlrequest
 
-from wc import config as C
-from wc import destinations as D
+from cuff import config as C
+from cuff import destinations as D
 
 HOME = C.HOME_DIR
 RECORDINGS = HOME / "recordings"
@@ -116,7 +116,7 @@ def transcribe(cfg: C.Config, path: str) -> str:
 
 def route(cfg: C.Config, text: str) -> str:
     """Route a transcript through the configured strategy (optional)."""
-    from wc import routing
+    from cuff import routing
     routing.validate(cfg.routes, cfg.destinations)
     return routing.route(cfg, text)[0]
 

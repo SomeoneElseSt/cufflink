@@ -14,7 +14,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from wc import config as C
+from cuff import config as C
 
 
 def out(data: dict, as_json: bool) -> None:
@@ -33,7 +33,7 @@ def cmd_setup(args) -> int:
         key, _, value = pair.partition("=")
         C.set_value(cfg, key, value)
     C.save(cfg, path)
-    from wc import daemon
+    from cuff import daemon
     key = daemon.api_key()
     pending = C.next_question(cfg)
     out({"config": str(path), "ingest_key_file": str(C.HOME_DIR / "key"),
@@ -54,7 +54,7 @@ def cmd_config(args) -> int:
 
 
 def cmd_status(args) -> int:
-    from wc import daemon
+    from cuff import daemon
     cfg = C.load()
     queue = 0
     qdir = C.HOME_DIR / "queue"
@@ -82,7 +82,7 @@ def cmd_status(args) -> int:
 
 
 def cmd_serve(args) -> int:
-    from wc import daemon
+    from cuff import daemon
     if args.detach:
         pid = daemon.start_detached()
         out({"detached": True, "pid": pid, "log": str(daemon.HOME / "wc.log")}, args.json)
@@ -92,7 +92,7 @@ def cmd_serve(args) -> int:
 
 
 def cmd_stop(args) -> int:
-    from wc import daemon
+    from cuff import daemon
     stopped = daemon.stop_running()
     out({"stopped": stopped}, args.json)
     return 0
@@ -115,7 +115,7 @@ def cmd_watch_setup(args) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="wc", description="wrist capture for agents")
+    parser = argparse.ArgumentParser(prog="cuff", description="wrist capture for agents")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("setup", help="first run: dirs, key, config")

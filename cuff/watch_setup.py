@@ -73,6 +73,6 @@ def main(endpoint: str, key: str) -> int:
 
 
 if __name__ == "__main__":
-    from wc import config as C, daemon
+    from cuff import config as C, daemon
     cfg = C.load()
     raise SystemExit(main(f"http://{cfg.server['host']}:{cfg.server['port']}/upload", daemon.api_key()))

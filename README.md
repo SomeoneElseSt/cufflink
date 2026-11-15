@@ -1,7 +1,7 @@
 # watchlink
 
-One tap on your Apple Watch, and the audio is on your own machine — then you
-decide what happens to it. Nothing is decided for you.
+One tap on your Apple Watch, and the audio is on your own machine. From there
+you can transcribe it, read it over MCP, or route it to an agent.
 
 ```
 watch ──tap──▶ your Mac (or a VM) ──▶ ~/.wrist/recordings/*.m4a + index.db
@@ -31,9 +31,8 @@ A capture inbox you own, as plain files plus a SQLite index:
   OpenClaw `/hooks/agent`, anything that takes a POST — by keyword match, a
   System-1 classifier, or a reasoning model that picks the destination. With
   no routes, everything goes to the first destination.
-- **Optionality is the point.** Use one of these, or all, or none: transcribe
-  and read locally; skip transcription and keep raw audio; push to an agent;
-  read over MCP from an agent elsewhere. The defaults are quiet, not opinionated.
+- **Use any of it, or none.** Transcribe and read locally, keep raw audio,
+  push to an agent, or read over MCP from an agent elsewhere.
 
 ## Quick start
 

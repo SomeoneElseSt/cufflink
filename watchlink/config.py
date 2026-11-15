@@ -121,6 +121,16 @@ def parse(text: str) -> Config:
     cfg.routing.update(data.get("routing", {}))
     cfg.routes = data.get("routes", [])
     cfg.destinations = data.get("destinations", {})
+    # destinations are handed to the delivery code as Destination objects,
+    # never as raw dicts - a dict has no .url and crashes at delivery time.
+    from watchlink.destinations import Destination
+    cfg.destinations = {
+        name: (d if isinstance(d, Destination) else Destination(
+            name=name, url=d.get("url", ""), scheme=d.get("scheme", "bearer"),
+            secret_env=d.get("secret_env", ""), token_env=d.get("token_env", ""),
+            headers=d.get("headers", {}), path_suffix=d.get("path_suffix", "")))
+        for name, d in cfg.destinations.items()
+    }
     overrides = data.get("transcription", {}).get("adapters", {})
     for name, spec in overrides.items():
         cfg.adapters.setdefault(name, {}).update(spec)

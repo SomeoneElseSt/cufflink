@@ -18,8 +18,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 def home_dir() -> Path:
-    """Read CUFF_HOME at call time - tests and `cuff --home` must not need a re-import."""
-    return Path(os.environ.get("CUFF_HOME", Path.home() / ".wrist"))
+    """Read WATCHLINK_HOME at call time - tests and `watchlink --home` must not need a re-import."""
+    return Path(os.environ.get("WATCHLINK_HOME", Path.home() / ".wrist"))
 
 
 def config_path() -> Path:
@@ -58,7 +58,7 @@ DEFAULTS = {
 # the answers become the config file. Nothing is hardcoded to one vendor.
 SETUP_QUESTIONS = [
     {"key": "server.where",
-     "ask": "Where will cuff run: on this Mac, or on a virtual machine? "
+     "ask": "Where will watchlink run: on this Mac, or on a virtual machine? "
             "(on a VM the watch posts to the VM's address and the Mac only reads it over MCP)"},
     {"key": "server.address",
      "ask": "If a VM: what is its public address or hostname? (used to build the watch shortcut's URL)",

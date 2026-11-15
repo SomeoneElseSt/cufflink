@@ -17,7 +17,7 @@ Stdlib only: JSON-RPC over stdin/stdout or a tiny HTTP POST endpoint.
 import json
 import sys
 
-from cuff import daemon
+from watchlink import daemon
 
 
 def captures(route: str = "", since: str = "", limit: int = 20) -> list[dict]:
@@ -69,7 +69,7 @@ def handle(request: dict) -> dict | None:
     if method == "initialize":
         return {"jsonrpc": "2.0", "id": rid, "result": {
             "protocolVersion": "2025-06-18",
-            "serverInfo": {"name": "cufflink", "version": "0.1"},
+            "serverInfo": {"name": "watchlink", "version": "0.1"},
             "capabilities": {"tools": {}, "resources": {"subscribe": True}}}}
     if method == "tools/list":
         tools = [{"name": name, "description": spec["description"], "inputSchema": {

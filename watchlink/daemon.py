@@ -18,10 +18,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib import request as urlrequest
 
-from cuff import config as C
-from cuff import destinations as D
+from watchlink import config as C
+from watchlink import destinations as D
 
-def HOME() -> Path:  # noqa: N802 - follows CUFF_HOME at call time
+def HOME() -> Path:  # noqa: N802 - follows WATCHLINK_HOME at call time
     return C.home_dir()
 
 
@@ -112,13 +112,13 @@ def make_handler(key: str):
 
 # ---- the loop: transcribe -> route -> deliver ------------------------------
 def transcribe(cfg: C.Config, path: str) -> str:
-    from cuff.transcribe import transcribe_file   # kept out of the hot import path
+    from watchlink.transcribe import transcribe_file   # kept out of the hot import path
     return transcribe_file(cfg, path)
 
 
 def route(cfg: C.Config, text: str) -> str:
     """Route a transcript through the configured strategy (optional)."""
-    from cuff import routing
+    from watchlink import routing
     routing.validate(cfg.routes, cfg.destinations)
     return routing.route(cfg, text)[0]
 
@@ -172,7 +172,7 @@ def worker(cfg_path: Path, stop: threading.Event) -> None:
 
 # ---- lifecycle -------------------------------------------------------------
 def pid_file() -> Path:
-    return HOME() / "cuff.pid"
+    return HOME() / "watchlink.pid"
 
 
 def running() -> int | None:
@@ -204,12 +204,12 @@ def stop_running() -> bool:
 
 def start_detached(cfg_path: Path | None = None) -> int:
     """Double-fork so an agent's shell can exit (or its session close) and the
-    daemon keeps running. logs to ~/.wrist/cuff.log, pid in ~/.wrist/cuff.pid."""
+    daemon keeps running. logs to ~/.wrist/watchlink.log, pid in ~/.wrist/watchlink.pid."""
     existing = running()
     if existing is not None:
         return existing
     HOME().mkdir(parents=True, exist_ok=True)
-    log = open(HOME() / "cuff.log", "ab")
+    log = open(HOME() / "watchlink.log", "ab")
     first = os.fork()
     if first > 0:
         os.waitpid(first, 0)

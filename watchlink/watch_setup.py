@@ -11,7 +11,7 @@ from pathlib import Path
 
 CAPTURE = Path.home() / ".wrist" / "capture"
 
-SHORTCUT_NAME = "cufflink"
+SHORTCUT_NAME = "watchlink"
 # Shortcuts colours are ARGB ints; ink teal, matching the CLI's calm look.
 ICON_COLOR_TEAL = 0xFF0F766E
 # Glyph "mic.fill" from the SF Symbols set Shortcuts exposes.
@@ -20,9 +20,9 @@ ICON_GLYPH_MIC = 59498
 
 def say(message: str) -> None:
     """Onboarding: tell the human what is about to happen and that it is safe."""
-    print(f"cufflink: {message}", flush=True)
+    print(f"watchlink: {message}", flush=True)
     subprocess.run(["osascript", "-e",
-                    f'display notification "{message[:180]}" with title "cufflink setup"'],
+                    f'display notification "{message[:180]}" with title "watchlink setup"'],
                    capture_output=True)
 
 
@@ -74,7 +74,7 @@ def build(endpoint: str, key: str) -> Path:
 
 def sign_and_import(unsigned: Path) -> Path:
     # The name comes from WFWorkflowName inside the file, so the filename is
-    # free to differ: import always lands as "cufflink", never "...-signed".
+    # free to differ: import always lands as "watchlink", never "...-signed".
     # Import only accepts signed files, and the library name comes from
     # WFWorkflowName inside the file - so the signed copy keeps the plain name.
     signed = unsigned.with_name(f"{SHORTCUT_NAME}.shortcut")
@@ -98,9 +98,9 @@ def main(endpoint: str, key: str) -> int:
 
 if __name__ == "__main__":
     import os
-    from cuff import config as C
+    from watchlink import config as C
     cfg = C.load()
     # The key must be the target daemon's, not this machine's: a shortcut
     # built on the Mac against the VM ingest gets 401 with the Mac key.
-    key = os.environ.get("CUFF_INGEST_KEY") or (C.home_dir() / "key").read_text().strip()
+    key = os.environ.get("WATCHLINK_INGEST_KEY") or (C.home_dir() / "key").read_text().strip()
     raise SystemExit(main(f"http://{cfg.server['host']}:{cfg.server['port']}/upload", key))

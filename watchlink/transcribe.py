@@ -57,7 +57,7 @@ def transcribe_one(cfg, name: str, spec: dict, file_path: str) -> str:
 
 def transcribe_file(cfg, file_path: str) -> str:
     """Chain first (N providers in order), then the flat single-provider fields."""
-    from cuff import chain as CH
+    from watchlink import chain as CH
     section = cfg.transcription
     if section.get("chain"):
         result, via, errors = CH.resolve(

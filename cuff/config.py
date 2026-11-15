@@ -46,6 +46,8 @@ DEFAULTS = {
         "base_url": "",
         "api_key_env": "",
         "response_format": "json",
+        "chain": [],          # ordered provider names; empty = use the flat fields above
+        "providers": {},      # name -> {base_url, model, api_key_env, ...}
     },
 }
 
@@ -79,10 +81,15 @@ class Config:
     routes: list = field(default_factory=list)
     destinations: dict = field(default_factory=dict)
 
-    @property
-    def provider_spec(self) -> dict:
+    def provider_spec(self, name: str = "") -> dict:
         """The one contract: base_url + key from env + adapter tweaks if any."""
-        spec = dict(self.transcription)
+        if name:
+            spec = dict(self.transcription.get("providers", {}).get(name, {}))
+            spec.setdefault("model", self.transcription.get("model", ""))
+            spec.setdefault("response_format", self.transcription.get("response_format", "json"))
+            spec.setdefault("language", self.transcription.get("language", "auto"))
+        else:
+            spec = dict(self.transcription)
         adapter = self.adapters.get(spec.get("provider", ""), {})
         spec.update({k: v for k, v in adapter.items() if k not in spec or not spec[k]})
         spec["api_key"] = os.environ.get(spec.get("api_key_env") or "", "")

@@ -230,13 +230,16 @@ def serve(cfg_path: Path | None = None) -> None:
     cfg = C.load(cfg_path)
     key = api_key()
     stop = threading.Event()
-    threading.Thread(target=worker, args=(cfg_path, stop), daemon=True).start()
+    worker_thread = threading.Thread(target=worker, args=(cfg_path, stop), daemon=True)
+    worker_thread.start()
     server = ThreadingHTTPServer((cfg.server["host"], int(cfg.server["port"])), make_handler(key))
     print(f"watchlink serving on http://{cfg.server['host']}:{cfg.server['port']}/upload", flush=True)
     try:
         server.serve_forever()
     finally:
+        # drain: let the in-flight capture finish instead of losing it
         stop.set()
+        worker_thread.join(timeout=60)
 
 
 def wake(_: str = "") -> None:

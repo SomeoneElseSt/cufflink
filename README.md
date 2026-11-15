@@ -100,3 +100,21 @@ python -m watchlink.mcp_server
 # HTTP with a bearer token, for the remote case (watchlink on a VM)
 WATCHLINK_MCP_TOKEN=<token> python -m watchlink.mcp_http --http --port 8767
 ```
+
+## Troubleshooting
+
+- **A capture came in but no reply anywhere.** Check `wl status --json`: if a
+  destination is configured but the delivery secret is missing from the
+  daemon's environment, the delivery fails with 401 and the row stays
+  `delivery_failed` in the index. Restart the daemon with the secret set.
+- **The watch tap does nothing.** The shortcut must be imported where the
+  watch syncs from (the iPhone), and the first run asks for microphone and
+  network permission — allow both. Also check the ingest key baked into the
+  shortcut is the *daemon's* key (a Mac-built shortcut against a VM ingest
+  gets a silent 401).
+- **`recordings` is empty after a day.** With the daemon on your Mac, uploads
+  only work while it is awake; a closed lid means the recording goes nowhere.
+  Run it on a VM if you want it always reachable.
+- **Config errors like `Cannot declare ('transcription', 'adapters', ...) twice`.**
+  Never append tables to `config.toml` by hand — regenerate it with
+  `wl setup`.

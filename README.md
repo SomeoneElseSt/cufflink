@@ -1,9 +1,21 @@
 # watchlink
 
-> **watchlink** - tap your Watch, the audio lands on your machine.
-> Nothing is uploaded anywhere it doesn't belong: the files are yours,
-> and every step after that (transcribe, read over MCP, route to an agent)
-> is one you opt into.
+> Hello, human!
+>
+> If you're reading this, feel free to copy the entire page and give it to your agent.
+>
+> It will walk through setting up: 1) your computer or a virtual machine to save your recordings/transcripts on, 2) a transcription service of your choosing to transcribe the recordings, 3) a MCP server to query said transcripts, and optionally 4) wire that up to a personal agent like Hermes or OpenClaw to delegate things easily.
+>
+> During set up, you must be on a Mac so the agent can add the shortcut to let your Apple Watch send recordings.
+>
+> It will add it and you should then open the shortcuts app on your watch and wait until it's synced.
+>
+> Once synced, when you run it for the first time it will ask you for microphone permissions and for permissions to send your data.
+>
+> Permit always allow for both.
+>
+> You can then add the shortcut in the Watch's control center or as a shortcut on an Apple Watch ultra, letting you easily start a recording.
+
 
 One tap on your Apple Watch, and the audio is on your own machine. From there
 you can transcribe it, read it over MCP, or route it to an agent.

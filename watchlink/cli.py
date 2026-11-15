@@ -1,10 +1,10 @@
-"""wc CLI - agent-first: every command is non-interactive and speaks --json.
+"""watchlink CLI - agent-first: every command is non-interactive and speaks --json.
 
-    wc setup   [--json]   first run: dirs, key, config (asks the SETUP_QUESTIONS via flags)
-    wc serve              run the daemon (ingest + watcher + router)
-    wc status  [--json]   is it up, what is configured, queue depth
-    wc config get|set     read/write one dotted key
-    wc watch-setup        build + sign + import the watch shortcut (macOS)
+    watchlink setup   [--json]   first run: dirs, key, config (asks the SETUP_QUESTIONS via flags)
+    watchlink serve              run the daemon (ingest + watcher + router)
+    watchlink status  [--json]   is it up, what is configured, queue depth
+    watchlink config get|set     read/write one dotted key
+    watchlink watch-setup        build + sign + import the watch shortcut (macOS)
 """
 
 import argparse

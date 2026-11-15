@@ -1,0 +1,22 @@
+[project]
+name = "watchlink"
+version = "0.1.0"
+description = "One tap on your Apple Watch, and the audio is on your own machine - transcribe it, read it over MCP, or route it to an agent."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+dependencies = []          # the daemon and CLI are stdlib only
+
+[project.optional-dependencies]
+local-whisper = ["faster-whisper"]
+
+[project.scripts]
+watchlink = "watchlink.cli:main"
+wl = "watchlink.cli:wl_main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["watchlink"]

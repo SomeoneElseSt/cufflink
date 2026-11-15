@@ -124,18 +124,9 @@ def route(cfg: C.Config, text: str) -> str:
 
 
 def deliver(cfg: C.Config, dest_name: str, capture: dict) -> dict:
-    spec = cfg.destinations.get(dest_name)
-    if not spec:
+    dest = cfg.destinations.get(dest_name)
+    if not dest:
         return {"ok": False, "error": f"no destination {dest_name}"}
-    dest = D.Destination(
-        name=dest_name,
-        url=spec.get("url", ""),
-        scheme=spec.get("scheme", "bearer"),
-        secret_env=spec.get("secret_env", ""),
-        token_env=spec.get("token_env", ""),
-        headers=spec.get("headers", {}),
-        path_suffix=spec.get("path_suffix", ""),
-    )
     return D.deliver(dest, capture)
 
 

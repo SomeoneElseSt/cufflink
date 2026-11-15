@@ -11,6 +11,11 @@ watch ──tap──▶ your Mac (or a VM) ──▶ ~/.wrist/recordings/*.m4a 
               transcribe            read over MCP       route to an agent
          locally or any service   list_captures / get   webhook (Hermes,
          (OpenAI-compatible)      resources/read        OpenClaw), or nothing
+                                                              │
+                                          optional, with many agents or
+                                          loggers: classify first, then
+                                          pick - keyword, System-1
+                                          classifier, or a reasoning model
 ```
 
 ## What it gives you

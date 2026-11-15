@@ -59,7 +59,7 @@ def build(endpoint: str, key: str) -> Path:
 
 
 def sign_and_import(unsigned: Path) -> Path:
-    signed = unsigned.with_name(f"{SHORTCUT_NAME}.shortcut")
+    signed = unsigned.with_name(f"{SHORTCUT_NAME}-signed.shortcut")
     subprocess.run(["shortcuts", "sign", "--mode", "anyone",
                     "--input", str(unsigned), "--output", str(signed)], check=True)
     subprocess.run(["open", str(signed)])
@@ -79,6 +79,10 @@ def main(endpoint: str, key: str) -> int:
 
 
 if __name__ == "__main__":
-    from cuff import config as C, daemon
+    import os
+    from cuff import config as C
     cfg = C.load()
-    raise SystemExit(main(f"http://{cfg.server['host']}:{cfg.server['port']}/upload", daemon.api_key()))
+    # The key must be the target daemon's, not this machine's: a shortcut
+    # built on the Mac against the VM ingest gets 401 with the Mac key.
+    key = os.environ.get("CUFF_INGEST_KEY") or (C.home_dir() / "key").read_text().strip()
+    raise SystemExit(main(f"http://{cfg.server['host']}:{cfg.server['port']}/upload", key))

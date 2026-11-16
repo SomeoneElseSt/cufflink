@@ -1,0 +1,5 @@
+name: watchlink-receiver
+version: 0.1.0
+description: "Receives a watchlink capture (wrist recording transcript) and injects it into the user's own Hermes conversation as a user turn, instead of starting a separate webhook agent."
+author: watchlink
+kind: bridge

@@ -102,10 +102,17 @@ def deliver(dest: Destination, capture: dict, timeout: int = 15, retries: int = 
 
 # What the agent is told when it asks an agent to create the webhook for you:
 SETUP_HINTS = {
-    "hermes": "Ask Hermes to create an incoming webhook and give you its URL and secret. "
-              "Then: wc config set destinations.hermes.url <url> "
-              "&& wc config set destinations.hermes.scheme standard-webhooks "
-              "&& wc config set destinations.hermes.secret_env HERMES_WEBHOOK_SECRET",
+    "hermes": "For captures to land in your MAIN Hermes conversation (not a separate "
+              "webhook agent), watchlink installs a small USER plugin into "
+              "~/.hermes/plugins/watchlink-receiver - your own directory, nothing from "
+              "the Hermes repo is modified. It needs allow_gateway_injection: true, and "
+              "the first message you send your agent teaches it which chat to target. "
+              "Then: wl config set destinations.receiver.url http://127.0.0.1:8770 "
+              "&& wl config set destinations.receiver.path_suffix /capture. "
+              "For the plain webhook route instead, ask Hermes for an incoming webhook "
+              "URL and secret: wl config set destinations.hermes.url <url> "
+              "&& wl config set destinations.hermes.scheme standard-webhooks "
+              "&& wl config set destinations.hermes.secret_env HERMES_WEBHOOK_SECRET",
     "openclaw": "Ask OpenClaw for its hooks token and gateway URL. "
                 "Then: wc config set destinations.openclaw.url <gateway url> "
                 "&& wc config set destinations.openclaw.path_suffix /hooks/agent "

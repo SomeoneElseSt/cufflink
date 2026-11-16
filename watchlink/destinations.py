@@ -102,15 +102,18 @@ def deliver(dest: Destination, capture: dict, timeout: int = 15, retries: int = 
 
 # What the agent is told when it asks an agent to create the webhook for you:
 SETUP_HINTS = {
-    "hermes": "For captures to land in your MAIN Hermes conversation (not a separate "
-              "webhook agent), watchlink installs a small USER plugin into "
-              "~/.hermes/plugins/watchlink-receiver - your own directory, nothing from "
-              "the Hermes repo is modified. It needs allow_gateway_injection: true, and "
-              "the first message you send your agent teaches it which chat to target. "
-              "Then: wl config set destinations.receiver.url http://127.0.0.1:8770 "
+    "hermes": "Two options, and they are not equivalent. "
+              "(1) INTO YOUR MAIN CONVERSATION - the one you already talk to, with its "
+              "memory of you: watchlink installs a small USER plugin into "
+              "~/.hermes/plugins/watchlink-receiver (your own directory, the Hermes repo "
+              "is not modified), sets allow_gateway_injection: true, and the first "
+              "message you send your agent teaches it which chat to target. Then: "
+              "wl config set destinations.receiver.url http://127.0.0.1:8770 "
               "&& wl config set destinations.receiver.path_suffix /capture. "
-              "For the plain webhook route instead, ask Hermes for an incoming webhook "
-              "URL and secret: wl config set destinations.hermes.url <url> "
+              "(2) WITHOUT THE PLUGIN - a plain Hermes webhook starts a SEPARATE agent "
+              "run that has NO memory of your conversation: it answers the capture "
+              "cold, as a subagent. If you want that anyway, ask Hermes for an incoming "
+              "webhook URL and secret, then: wl config set destinations.hermes.url <url> "
               "&& wl config set destinations.hermes.scheme standard-webhooks "
               "&& wl config set destinations.hermes.secret_env HERMES_WEBHOOK_SECRET",
     "openclaw": "Ask OpenClaw for its hooks token and gateway URL. "
